@@ -94,10 +94,8 @@ class CrosswordController {
       'CrosswordController: domGridParentElement is null or undefined',
     );
     this.#crosswordModel = crosswordModel;
-    this.#domGridParentElement = domGridParentElement;
+    this.#domGridParentElement = this.buildCrosswordGridDOM(domGridParentElement);
     this.#domCluesParentElement = domCluesParentElement;
-
-    this.buildCrosswordGridDOM();
     
     // Mapping of end-user-initiated events to handler methods
     this.#userEventHandlers = {
@@ -140,7 +138,7 @@ class CrosswordController {
 
   }
 
-  buildCrosswordGridDOM() {
+  buildCrosswordGridDOM(domGridParentElement) {
     this.#crosswordGridView = this.#document.createElement('div');
 
     // set the grid size variables, used as part of the css-grid styling
@@ -164,7 +162,9 @@ class CrosswordController {
     }
 
     //  Add the crossword grid to the webpage DOM
-    this.#domGridParentElement.appendChild(this.crosswordGridView);
+    domGridParentElement.appendChild(this.crosswordGridView);
+
+    return domGridParentElement;
   }
 
   //  Completely cleans up the crossword.
