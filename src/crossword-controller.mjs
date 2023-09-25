@@ -96,39 +96,9 @@ class CrosswordController {
     this.#crosswordModel = crosswordModel;
     this.#domGridParentElement = domGridParentElement;
     this.#domCluesParentElement = domCluesParentElement;
-    //  Build the DOM for the crossword grid.
-    this.#crosswordGridView = this.#document.createElement('div');
 
-    // set the grid size variables, used as part of the css-grid styling
-    this.#crosswordGridView.style.setProperty('--row-count', this.#crosswordModel.height.toString())
-    this.#crosswordGridView.style.setProperty('--column-count', this.#crosswordModel.width.toString())
-
-    addClass(this.#crosswordGridView, 'crossword-grid');
-
-    // Build the DOM for the crossword clues.
-    if (domCluesParentElement) {
-      this.#crosswordCluesView = this.#newCrosswordCluesView(
-        this.#document,
-        this,
-      );
-      //  Add the crossword clues to the webpage DOM
-      domCluesParentElement.appendChild(this.#crosswordCluesView);
-    }
-
-    //  Create each cell.
-    for (let y = 0; y < this.#crosswordModel.height; y += 1) {
-      for (let x = 0; x < this.#crosswordModel.width; x += 1) {
-        const cell = this.#crosswordModel.cells[x][y];
-
-        //  Build the cell element and add it to the row.
-        const cellElement = this.#newCellElement(this.#document, cell);
-        this.#crosswordGridView.appendChild(cellElement);
-
-        //  Update the map of cells
-        this.#cellMap.add(cell, cellElement);
-      }
-    }
-
+    this.buildCrosswordGridDOM();
+    
     // Mapping of end-user-initiated events to handler methods
     this.#userEventHandlers = {
       // Reveal solution for current letter in answer. All revealed cells have
@@ -155,11 +125,46 @@ class CrosswordController {
       'test-crossword': this.testCrossword,
     };
 
-    //  Add the crossword grid to the webpage DOM
-    this.#domGridParentElement.appendChild(this.crosswordGridView);
-
     // Select the first "across" clue when the grid is complete and visible.
     this.currentClue = this.#crosswordModel.acrossClues[0];
+
+    // Build the DOM for the crossword clues.
+    if (domCluesParentElement) {
+      this.#crosswordCluesView = this.#newCrosswordCluesView(
+        this.#document,
+        this,
+      );
+      //  Add the crossword clues to the webpage DOM
+      domCluesParentElement.appendChild(this.#crosswordCluesView);
+    }
+
+  }
+
+  buildCrosswordGridDOM() {
+    this.#crosswordGridView = this.#document.createElement('div');
+
+    // set the grid size variables, used as part of the css-grid styling
+    this.#crosswordGridView.style.setProperty('--row-count', this.#crosswordModel.height.toString())
+    this.#crosswordGridView.style.setProperty('--column-count', this.#crosswordModel.width.toString())
+
+    addClass(this.#crosswordGridView, 'crossword-grid');
+
+    //  Create each cell.
+    for (let y = 0; y < this.#crosswordModel.height; y += 1) {
+      for (let x = 0; x < this.#crosswordModel.width; x += 1) {
+        const cell = this.#crosswordModel.cells[x][y];
+
+        //  Build the cell element and add it to the row.
+        const cellElement = this.#newCellElement(this.#document, cell);
+        this.#crosswordGridView.appendChild(cellElement);
+
+        //  Update the map of cells
+        this.#cellMap.add(cell, cellElement);
+      }
+    }
+
+    //  Add the crossword grid to the webpage DOM
+    this.#domGridParentElement.appendChild(this.crosswordGridView);
   }
 
   //  Completely cleans up the crossword.
