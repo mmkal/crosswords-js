@@ -123,9 +123,20 @@ class CrosswordController {
         //  Build the cell element and add it to the row.
         const cellElement = this.#newCellElement(this.#document, cell);
         this.#crosswordGridView.appendChild(cellElement);
+      }
+    }
 
-        //  Update the map of cells
+    // Initialize cell map
+    for (let y = 0; y < this.#crosswordModel.height; y += 1) {
+      for (let x = 0; x < this.#crosswordModel.width; x += 1) {
+        const cell = this.#crosswordModel.cells[x][y];
+        const cellElement = this.#crosswordGridView.querySelector(`[data-xy="${cell.x},${cell.y}"]`)
+        cell.cellElement = cellElement
         this.#cellMap.add(cell, cellElement);
+        if (cell.light) {
+          const inputElement = cellElement.querySelector('input')
+          this.#addEventListeners(cellElement, inputElement);
+        }
       }
     }
 
@@ -528,7 +539,7 @@ class CrosswordController {
       addClass(cbElement, 'crossword-clue-block');
       cbElement.id = id;
       let titleElement = document.createElement('p');
-      titleElement.innerHTML = title;
+      titleElement.textContent = title;
       addClass(titleElement, 'crossword-clue-block-title');
       cbElement.appendChild(titleElement);
       return cbElement;
@@ -538,16 +549,17 @@ class CrosswordController {
       cluesModel.forEach((mc) => {
         let clueElement = document.createElement('div');
         addClass(clueElement, 'crossword-clue');
+        clueElement.setAttribute('data-clue', mc.code)
         clueElement.modelClue = mc;
 
         let labelElement = document.createElement('span');
         addClass(labelElement, 'crossword-clue-label');
-        labelElement.innerHTML = `${mc.clueLabel}`;
+        labelElement.textContent = `${mc.clueLabel}`;
         clueElement.appendChild(labelElement);
 
         let textElement = document.createElement('span');
         addClass(textElement, 'crossword-clue-text');
-        textElement.innerHTML = `${mc.clueText} ${mc.answerLengthText}`;
+        textElement.textContent = `${mc.clueText} ${mc.answerLengthText}`;
         clueElement.appendChild(textElement);
 
         // add handler for click event
@@ -844,8 +856,7 @@ class CrosswordController {
     // trace(`newCellElement(${cell.x},${cell.y})`);
     const cellElement = document.createElement('div');
     addClass(cellElement, 'cwcell');
-    //  eslint-disable-next-line no-param-reassign
-    cell.cellElement = cellElement;
+    cellElement.setAttribute('data-xy', `${cell.x},${cell.y}`)
 
     //  Add a class.
     addClass(cellElement, cell.light ? 'light' : 'dark');
@@ -867,7 +878,7 @@ class CrosswordController {
     if (cell.clueLabel) {
       const clueLabel = document.createElement('div');
       addClass(clueLabel, 'cwclue-label');
-      clueLabel.innerHTML = cell.clueLabel;
+      clueLabel.textContent = cell.clueLabel;
       cellElement.appendChild(clueLabel);
     }
 
@@ -888,8 +899,6 @@ class CrosswordController {
       addClass(inputElement, 'cw-down-word-separator');
     }
 
-    //// Event handlers
-    this.#addEventListeners(cellElement, inputElement);
     return cellElement;
   }
 
