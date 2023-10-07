@@ -298,6 +298,10 @@ class CrosswordController {
     return this.#current.clue;
   }
   set currentClue(clue) {
+    this.setCurrentClueAndCell(clue, null);
+  }
+
+  setCurrentClueAndCell(clue, cell) {
     if (clue !== this.#current.clue) {
       if (this.#current.clue) {
         this.#deactivateClue(this.#current.clue);
@@ -308,7 +312,7 @@ class CrosswordController {
       // check if new current clue includes current cell
       if (!this.currentClue.cells.includes(this.currentCell)) {
         // switch to first cell of new current clue
-        this.currentCell = this.currentClue.cells[0];
+        this.currentCell = cell || this.currentClue.cells[0];
       }
       this.#stateChange('clueSelected', clue);
     }
@@ -451,7 +455,7 @@ class CrosswordController {
       context = 'in CurrentClue';
     } else if ((across && !down) || (!across && down)) {
       //  If we have an across clue XOR a down clue, pick the one we have.
-      this.currentClue = across || down;
+      this.setCurrentClueAndCell(across || down, eventCell);
       context = `${this.currentClue === across ? 'across' : 'down'} (xor)`;
     } else if (
       across &&
@@ -461,7 +465,7 @@ class CrosswordController {
     ) {
       //  We've got across. If we are moving between clue segments,
       //  prefer to choose the next/previous segment...
-      this.currentClue = across;
+      this.setCurrentClueAndCell(across, eventCell);
       context = 'across (multi-segment)';
     } else if (
       down &&
@@ -471,15 +475,17 @@ class CrosswordController {
     ) {
       //  We've got down. If we are moving between clue segments,
       //  prefer to choose the next/previous segment...
-      this.currentClue = down;
+      this.setCurrentClueAndCell(down, eventCell);
       context = 'down (multi-segment)';
     } else {
       //  ...otherwise, Prefer across, unless we're on the first letter of a down clue only
-      this.currentClue =
+      this.setCurrentClueAndCell(
         eventCell.downClueLetterIndex === 0 &&
         eventCell.acrossClueLetterIndex !== 0
           ? down
-          : across;
+          : across,
+        eventCell
+      );
       context = `${
         this.currentClue === across ? 'across' : 'down'
       } (first letter of down only or default across)`;
